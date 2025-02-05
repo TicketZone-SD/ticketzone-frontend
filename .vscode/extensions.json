@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens",
+    "PKief.material-icon-theme",
+    "natqe.reload",
+    "bradlc.vscode-tailwindcss",
+    "BracketPairColorDLW.bracket-pair-color-dlw",
+    "wix.vscode-import-cost",
+    "yoavbls.pretty-ts-errors", 
+  ]
+}
