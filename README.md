@@ -16,20 +16,20 @@ Este repositório contém o frontend do sistema **TicketZone**, desenvolvido com
 ## 📌 **1️⃣ Pré-requisitos**
 Antes de começar, instale as seguintes ferramentas:
 
-### 🔹 **Instalar Node.js 20**
-Baixe e instale a versão **20 LTS** do Node.js:  
-🔗 [Download Node.js 20 LTS](https://nodejs.org/en/download)
+### 🔹 **Instalar Node.js 22**
+Baixe e instale a versão **22 LTS** do Node.js:  
+🔗 [Download Node.js 22 LTS](https://nodejs.org/en/download)
 
 Para verificar se está tudo certo, rode:
 ```bash
-node -v   # Deve exibir v20.x.x
+node -v   # Deve exibir v22.x.x
 npm -v    # Deve exibir a versão do npm
 ```
 
 Se quiser gerenciar versões do Node.js, instale o **nvm**:
 ```bash
-nvm install 20
-nvm use 20
+nvm install 22
+nvm use 22
 ```
 
 ---
