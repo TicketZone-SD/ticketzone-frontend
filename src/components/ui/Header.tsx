@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,9 +24,12 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="bg-black text-white py-4 shadow-md">
+    <header className="bg-primary text-white py-4 shadow-md">
       <div className="container mx-auto flex items-center justify-between px-6">
-        <h1 className="text-xl font-bold">🎟 Ticket Zone</h1>
+        <h1 className="text-xl font-bold flex items-center gap-x-2">
+          <Image src="/images/Logo-sem-fundo.png" alt="TicketZone Logo" width={60} height={60} />
+          <span>TicketZone</span>
+        </h1>
 
         <div className="relative">
           <Input
