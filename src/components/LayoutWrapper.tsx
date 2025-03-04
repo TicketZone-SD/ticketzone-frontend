@@ -7,7 +7,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const pathname = usePathname();
 
   // Routes that don't need the Header
-  const excludedRoutes = ["/", "/cadastro", "/login"];
+  const excludedRoutes = ["/cadastro", "/login"];
 
   return (
     <>
