@@ -1,13 +1,16 @@
 "use client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { User } from "@/interfaces/user";
 
 export default function Header() {
-  const [user, setUser] = useState<{ name: string; avatar: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     // Get user logged from localStorage
@@ -16,12 +19,20 @@ export default function Header() {
       setUser(JSON.parse(storedUser));
     } else {
       // User default for testing
-      setUser({
-        name: "Usuário",
-        avatar: "https://i.pravatar.cc/150?u=lincon",
-      })
+      // setUser({
+      //   name: "Usuário",
+      //   avatar: "https://i.pravatar.cc/150?u=lincon",
+      // })
     }
   }, []);
+
+  const handleLogin = () => {
+    router.push("/login");
+  };
+
+  const handleRegister = () => {
+    router.push("/cadastro");
+  };
 
   return (
     <header className="bg-primary text-white py-4 shadow-md">
@@ -39,34 +50,43 @@ export default function Header() {
           />
         </div>
 
-        <nav className="hidden md:flex space-x-6">
-          <Button variant="ghost">Eventos</Button>
-          <Button variant="ghost">Estados</Button>
-          <Button variant="ghost">Ajuda</Button>
-        </nav>
-
         {user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <div className="flex items-center space-x-2 cursor-pointer">
-                <Avatar>
-                  <AvatarImage src={user.avatar} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span>{user.name}</span>
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>Meu Perfil</DropdownMenuItem>
-              <DropdownMenuItem>Meus Pedidos</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => {
-                localStorage.removeItem("user");
-                setUser(null);
-              }}>Sair</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <>
+            <nav className="hidden md:flex space-x-6">
+              <Button variant="ghost">Eventos</Button>
+              <Button variant="ghost">Estados</Button>
+              <Button variant="ghost">Ajuda</Button>
+            </nav>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <div className="flex items-center space-x-2 cursor-pointer">
+                  <Avatar>
+                    <AvatarImage src={user.avatar} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span>{user.name}</span>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Meu Perfil</DropdownMenuItem>
+                <DropdownMenuItem>Meus Pedidos</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  localStorage.removeItem("user");
+                  setUser(null);
+                }}>Sair</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         ) : (
-          <Button variant="outline">Entrar</Button>
+          <div className="flex space-x-4">
+            <Button variant="ghost" onClick={handleLogin}>
+              Login
+            </Button>
+            <Button variant="secondary" onClick={handleRegister}>
+              Criar Conta
+            </Button>
+          </div>
         )}
       </div>
     </header>

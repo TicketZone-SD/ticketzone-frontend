@@ -1,5 +1,7 @@
-"use client"; // Marca o componente como um componente de cliente
+"use client";
 
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,10 +9,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import Link from "next/link"; // Importação do Link para redirecionamento
+import { ChevronLeft } from "lucide-react";
+import { User } from "@/interfaces/user";
 
 export default function Login() {
   const { toast } = useToast();
+  const router = useRouter();
+
+  const [user, setUser] = useState<User | null>(null);
+
+  const handleRegister = () => {
+    router.push("/cadastro");
+  }
+
+  const handleInitial = () => {
+    router.push("/");
+  }
+
+  const handleHome = () => {
+    router.push("/home");
+  }
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -66,10 +85,16 @@ export default function Login() {
       if (!validate(key)) {
         isValid = false;
       }
+
+      // FAZER REQUEST PARA API DE LOGIN
+      // setUser({
+      //   name: response.username,
+      //   avatar: response.avatar | "https://i.pravatar.cc/150?u=lincon",
+      // });
     });
 
     if (isValid) {
-      console.log("Dados de login:", formData);
+      localStorage.setItem("user", JSON.stringify(user));
 
       toast({
         title: "Sucesso!",
@@ -85,15 +110,27 @@ export default function Login() {
         username: "",
         password: "",
       });
+
+      handleHome();
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-8 bg-slate-600">
       <Toaster />
+
+      <div className="absolute top-4 left-4">
+        <Button variant="ghostDefault" size="icon" onClick={handleInitial}>
+          <ChevronLeft />
+        </Button>
+      </div>
+
       <Card className="w-full max-w-md shadow-lg text-white border border-black">
         <CardHeader className="text-center bg-primary p-6 rounded-t-lg">
-          <CardTitle className="text-xl font-bold">🎟 Ticket Zone</CardTitle>
+          <CardTitle className="text-xl font-bold flex items-center justify-center gap-x-2">
+            <Image src="/images/Logo-sem-fundo.png" alt="TicketZone Logo" width={40} height={40} />
+            <span>TicketZone</span>
+          </CardTitle>
           <p className="text-gray-300">Faça seu login para acessar a plataforma</p>
         </CardHeader>
 
@@ -135,19 +172,17 @@ export default function Login() {
 
             <Button
               type="submit"
-              className="w-full py-4 px-6 text-base font-medium rounded-md bg-gray-800 hover:bg-gray-700 text-white"
+              variant="ghostDefault"
+              className="w-full py-4 px-6 text-base font-medium rounded-md"
             >
               Login
             </Button>
 
-            {/* Texto com link clicável para cadastro */}
-            <div className="text-center mt-4">
-              <p className="text-sm text-gray-600">
-                Você ainda não possui cadastro?{" "}
-                <Link href="/cadastro" className="text-blue-500 hover:underline">
-                  Clique aqui
-                </Link>
-              </p>
+            <div className="flex items-center justify-center text-sm">
+              <span className="text-gray-600">Não possui cadastro?</span>
+              <Button variant="link" className="text-sm" onClick={handleRegister}>
+                Cadastre-se
+              </Button>
             </div>
           </form>
         </CardContent>
