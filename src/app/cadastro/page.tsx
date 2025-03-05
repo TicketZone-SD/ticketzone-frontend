@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 
 export default function Cadastro() {
   const { toast } = useToast();
@@ -285,6 +286,16 @@ export default function Cadastro() {
             >
               Cadastrar
             </Button>
+
+             {/* Texto com link clicável para cadastro */}
+            <div className="text-center mt-4">
+              <p className="text-sm text-gray-600">
+                Você já possui um Login?{" "}
+                <Link href="/login" className="text-blue-500 hover:underline">
+                  Clique aqui
+                </Link>
+              </p>
+            </div>
           </form>
         </CardContent>
       </Card>
