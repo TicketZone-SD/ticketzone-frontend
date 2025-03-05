@@ -1,5 +1,7 @@
-"use client"; // Marca o componente como um componente de cliente
+"use client";
 
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,9 +16,20 @@ import {
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
+import { ChevronLeft } from "lucide-react";
 
 export default function Cadastro() {
   const { toast } = useToast();
+  const router = useRouter();
+
+  const handleLogin = () => {
+    router.push("/login");
+  }
+
+  const handleInitial = () => {
+    router.push("/");
+  }
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -158,16 +171,27 @@ export default function Cadastro() {
         cpf: "",
         role: "",
       });
+
+      handleLogin();
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-8 bg-slate-600">
-      {" "}
       <Toaster />
+
+      <div className="absolute top-4 left-4">
+        <Button variant="ghostDefault" size="icon" onClick={handleInitial}>
+          <ChevronLeft />
+        </Button>
+      </div>
+
       <Card className="w-full max-w-md shadow-lg text-white border border-black">
         <CardHeader className="text-center bg-primary p-6 rounded-t-lg">
-          <CardTitle className="text-xl font-bold">🎟 Ticket Zone</CardTitle>
+          <CardTitle className="text-xl font-bold flex items-center justify-center gap-x-2">
+            <Image src="/images/Logo-sem-fundo.png" alt="TicketZone Logo" width={40} height={40} />
+            <span>TicketZone</span>
+          </CardTitle>
           <p className="text-gray-300">Faça seu cadastro em nossa plataforma</p>
         </CardHeader>
 
@@ -278,13 +302,20 @@ export default function Cadastro() {
               )}
             </div>
 
-            <div></div>
             <Button
               type="submit"
-              className="w-full py-4 px-6 text-base font-medium rounded-md bg-gray-800 hover:bg-gray-700 text-white"
+              variant="ghostDefault"
+              className="w-full py-4 px-6 text-base font-medium rounded-md"
             >
               Cadastrar
             </Button>
+
+            <div className="flex items-center justify-center text-sm">
+              <span className="text-gray-600">Já possui uma conta?</span>
+              <Button variant="link" className="text-sm" onClick={handleLogin}>
+                Faça login
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
