@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { formatDate } from "@/utils/utils";
 import { useRouter } from "next/navigation";
 
-// Mock: Categorias baseadas no ID
 const categoryMap: { [key: number]: string } = {
   1: "Música",
   2: "Tecnologia",
@@ -17,7 +16,6 @@ const categoryMap: { [key: number]: string } = {
   4: "Esportes",
 };
 
-// Mock: Eventos do organizador logado
 const mockEvents = [
   { id: 1, name: "Festival de Música", description: "Um show incrível", local: "Recife", date: "2025-03-15", capacity: 500, price: 120, organizer: 2, category_id: 1 },
   { id: 2, name: "Tech Conference", description: "Evento de tecnologia", local: "São Paulo", date: "2025-04-20", capacity: 1000, price: 300, organizer: 2, category_id: 2 },
@@ -25,7 +23,7 @@ const mockEvents = [
 ];
 
 export default function ManageEvents() {
-  const [events, setEvents] = useState(mockEvents); // Usa os eventos mockados
+  const [events, setEvents] = useState(mockEvents);
   const router = useRouter();
   const [selectedEvent, setSelectedEvent] = useState<EventFormData | null>(null);
   const [open, setOpen] = useState(false);
@@ -43,60 +41,56 @@ export default function ManageEvents() {
     organizer: number;
   }
 
-  const initialFormData: EventFormData = {
-    id: events.length + 1,
-    name: "",
-    description: "",
-    local: "",
-    date: "",
-    capacity: 0,
-    price: 0,
-    category_id: 1,
-    organizer: 2,
-  };
-
-  const [formData, setFormData] = useState<EventFormData>(initialFormData);
-
   const handleTicketTypes = () => {
     router.push("/tipos-ingresso");
-  }
+  };
 
   const handleCreate = () => {
     setIsCreating(true);
-    setFormData(initialFormData);
-    setOpen(true);
-  };
-
-  // Abrir modal para edição
-  const handleEdit = (event: EventFormData) => {
-    setSelectedEvent(event);
-    setFormData({
-      ...event,
-      date: new Date(event.date).toISOString().split("T")[0], // Corrige a data
+    setSelectedEvent({
+      id: events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1,
+      name: "",
+      description: "",
+      local: "",
+      date: "",
+      capacity: 0,
+      price: 0,
+      category_id: 1,
+      organizer: 2,
     });
     setOpen(true);
   };
 
-  // Atualizar form ao editar
+  const handleEdit = (event: EventFormData) => {
+    setIsCreating(false);
+    setSelectedEvent({
+      ...event,
+      date: new Date(event.date).toISOString().split("T")[0],
+    });
+    setOpen(true);
+  };
+
   const handleChange = (e: { target: { name: string; value: string } }) => {
+    if (!selectedEvent) return;
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setSelectedEvent({
+      ...selectedEvent,
       [name]: name === "price" ? parseFloat(value) || 0 : value
     });
   };
 
-  // Salvar evento atualizado
   const handleSave = () => {
-    const updatedEvents = events.map((ev) => (ev.id === formData.id ? formData : ev));
-    setEvents(updatedEvents);
+    if (!selectedEvent) return;
+    if (isCreating) {
+      setEvents([...events, selectedEvent]);
+    } else {
+      setEvents(events.map(ev => (ev.id === selectedEvent.id ? selectedEvent : ev)));
+    }
     setOpen(false);
   };
 
-  // Remover evento
   const handleDelete = (id: number) => {
-    const updatedEvents = events.filter((event) => event.id !== id);
-    setEvents(updatedEvents);
+    setEvents(events.filter(event => event.id !== id));
   };
 
   return (
@@ -122,7 +116,7 @@ export default function ManageEvents() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {events.map((event) => (
+          {events.map(event => (
             <TableRow key={event.id}>
               <TableCell>{event.name}</TableCell>
               <TableCell>{event.description || "Sem descrição"}</TableCell>
@@ -153,32 +147,32 @@ export default function ManageEvents() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Nome</Label>
-              <Input type="text" name="name" value={formData.name} onChange={handleChange} />
+              <Input type="text" name="name" value={selectedEvent?.name || ""} onChange={handleChange} />
             </div>
 
             <div className="space-y-2">
               <Label>Descrição</Label>
-              <Textarea name="description" value={formData.description} onChange={handleChange} />
+              <Textarea name="description" value={selectedEvent?.description || ""} onChange={handleChange} />
             </div>
 
             <div className="space-y-2">
               <Label>Local</Label>
-              <Input type="text" name="local" value={formData.local} onChange={handleChange} />
+              <Input type="text" name="local" value={selectedEvent?.local || ""} onChange={handleChange} />
             </div>
 
             <div className="space-y-2">
               <Label>Data</Label>
-              <Input type="date" name="date" value={formData.date} onChange={handleChange} />
+              <Input type="date" name="date" value={selectedEvent?.date || ""} onChange={handleChange} />
             </div>
 
             <div className="space-y-2">
               <Label>Capacidade</Label>
-              <Input type="number" name="capacity" value={formData.capacity} onChange={handleChange} />
+              <Input type="number" name="capacity" value={selectedEvent?.capacity || 0} onChange={handleChange} />
             </div>
 
             <div className="space-y-2">
               <Label>Preço</Label>
-              <Input type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} />
+              <Input type="number" step="0.01" name="price" value={selectedEvent?.price || 0} onChange={handleChange} />
             </div>
 
             <Button onClick={handleSave} className="w-full mt-4">

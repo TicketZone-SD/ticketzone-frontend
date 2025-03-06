@@ -43,6 +43,10 @@ export default function Header() {
     router.push("/gerenciar-eventos");
   }
 
+  const handleCategoriesManager = () => {
+    router.push("/categorias");
+  }
+
   return (
     <header className="bg-primary text-white py-4 shadow-md">
       <div className="container mx-auto flex items-center justify-between px-6">
@@ -66,7 +70,7 @@ export default function Header() {
               {user.role === "Organizer" && (
                 <>
                   <Button variant="ghost" onClick={handleEventsManager}>Meus Eventos</Button>
-                  <Button variant="ghost" onClick={handleEventsManager}>Categorias</Button>
+                  <Button variant="ghost" onClick={handleCategoriesManager}>Categorias</Button>
                 </>
               )}
             </nav>
