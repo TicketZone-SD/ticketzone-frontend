@@ -17,19 +17,16 @@ export default function Header() {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-    } else {
-      // User default for testing
-      setUser({
-        id: 1,
-        name: "Usuário",
-        email: "default@example.com",
-        cpf: "000.000.000-00",
-        role: "Organizer",
-        token: "default-token",
-        avatar: "https://i.pravatar.cc/150?u=lincon",
-      })
     }
   }, []);
+
+  const handleInitial = () => {
+    router.push("/");
+  }
+
+  const handleHome = () => {
+    router.push("/home");
+  }
 
   const handleLogin = () => {
     router.push("/login");
@@ -51,8 +48,10 @@ export default function Header() {
     <header className="bg-primary text-white py-4 shadow-md">
       <div className="container mx-auto flex items-center justify-between px-6">
         <h1 className="text-xl font-bold flex items-center gap-x-2">
-          <Image src="/images/Logo-sem-fundo.png" alt="TicketZone Logo" width={60} height={60} />
-          <span>TicketZone</span>
+          <a onClick={user ? handleHome : handleInitial} className="cursor-pointer flex items-center gap-x-2">
+            <Image src="/images/Logo-sem-fundo.png" alt="TicketZone Logo" width={60} height={60} />
+            <span>TicketZone</span>
+          </a>
         </h1>
 
         <div className="relative">
@@ -91,6 +90,7 @@ export default function Header() {
                 <DropdownMenuItem onClick={() => {
                   localStorage.removeItem("user");
                   setUser(null);
+                  handleInitial();
                 }}>Sair</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

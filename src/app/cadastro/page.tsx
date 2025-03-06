@@ -16,11 +16,15 @@ import {
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
+import { createUser } from "@/services/django/userService";
+import { formatCPF } from "@/utils/utils";
 
 export default function Cadastro() {
   const { toast } = useToast();
   const router = useRouter();
+  const [maskedCPF, setMaskedCPF] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = () => {
     router.push("/login");
@@ -36,7 +40,7 @@ export default function Cadastro() {
     email: "",
     password: "",
     cpf: "",
-    role: "user",
+    role: "Client",
   });
 
   const [errors, setErrors] = useState({
@@ -73,8 +77,8 @@ export default function Cadastro() {
         break;
 
       case "password":
-        if (!formData.password || formData.password.length < 6) {
-          newErrors.password = "Senha deve ter pelo menos 6 caracteres.";
+        if (!formData.password || formData.password.length < 5) {
+          newErrors.password = "Senha deve ter pelo menos 5 caracteres.";
           isValid = false;
         } else {
           newErrors.password = "";
@@ -115,24 +119,21 @@ export default function Cadastro() {
     const { name, value } = e.target;
 
     if (name === "cpf") {
-      const cleanValue = value.replace(/\D/g, "");
+      const cleanedValue = value.replace(/\D/g, "").slice(0, 11);
+      setFormData((prevData) => ({
+        ...prevData,
+        cpf: cleanedValue,
+      }));
 
-      if (cleanValue.length <= 11) {
-        setFormData({ ...formData, cpf: cleanValue });
+      setMaskedCPF(formatCPF(cleanedValue));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
 
-        const newErrors = { ...errors };
-        if (cleanValue.length !== 11) {
-          newErrors.cpf = "CPF deve ter 11 dígitos numéricos.";
-        } else {
-          newErrors.cpf = "";
-        }
-        setErrors(newErrors);
-      } else {
-        setFormData({ ...formData, [name]: value });
-      }
-
-      validate(name);
-    };
+    validate(name);
   };
 
   const handleRoleChange = (value: string) => {
@@ -140,7 +141,7 @@ export default function Cadastro() {
     validate("role");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     let isValid = true;
@@ -150,12 +151,16 @@ export default function Cadastro() {
       }
     });
 
-    if (isValid) {
-      console.log("Data submitted:", formData);
+    if (!isValid) return;
+
+    setIsLoading(true);
+
+    try {
+      await createUser(formData);
 
       toast({
-        title: "Success!",
-        description: "Registration completed successfully.",
+        title: "Sucesso!",
+        description: "Cadastro realizado com sucesso. Você pode fazer login agora.",
       });
 
       setFormData({
@@ -164,7 +169,7 @@ export default function Cadastro() {
         email: "",
         password: "",
         cpf: "",
-        role: "user",
+        role: "Client",
       });
 
       setErrors({
@@ -177,6 +182,16 @@ export default function Cadastro() {
       });
 
       handleLogin();
+    } catch (error) {
+      console.error("Erro ao criar usuário", error);
+
+      toast({
+        title: "Erro",
+        description: "Não foi possível concluir o cadastro. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -184,13 +199,22 @@ export default function Cadastro() {
     <div className="flex items-center justify-center min-h-screen p-8 bg-slate-600">
       <Toaster />
 
+      {isLoading && (
+        <div
+          className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          aria-hidden="true"
+        >
+          <Loader2 className="w-12 h-12 animate-spin text-white" />
+        </div>
+      )}
+
       <div className="absolute top-4 left-4">
-        <Button variant="ghostDefault" size="icon" onClick={handleInitial}>
+        <Button variant="ghostDefault" size="icon" onClick={handleInitial} disabled={isLoading}>
           <ChevronLeft />
         </Button>
       </div>
 
-      <Card className="w-full max-w-md shadow-lg text-white border border-black">
+      <Card className={`w-full max-w-md shadow-lg text-white border border-black ${isLoading ? "opacity-50" : ""}`}>
         <CardHeader className="text-center bg-primary p-6 rounded-t-lg">
           <CardTitle className="text-xl font-bold flex items-center justify-center gap-x-2">
             <Image src="/images/Logo-sem-fundo.png" alt="TicketZone Logo" width={40} height={40} />
@@ -209,9 +233,8 @@ export default function Cadastro() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Digite seu nome completo"
-                className={`bg-gray-300 border ${
-                  errors.name ? "border-red-600" : "border-black"
-                }`}
+                className={`bg-gray-300 border ${errors.name ? "border-red-600" : "border-black"}`}
+                disabled={isLoading}
               />
               {errors.name && (
                 <p className="text-red-600 text-sm">{errors.name}</p>
@@ -226,9 +249,8 @@ export default function Cadastro() {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="Digite seu nome de usuário"
-                className={`bg-gray-300 border ${
-                  errors.cpf ? "border-red-600" : "border-black"
-                }`}
+                className={`bg-gray-300 border ${errors.cpf ? "border-red-600" : "border-black"}`}
+                disabled={isLoading}
               />
               {errors.username && (
                 <p className="text-red-600 text-sm">{errors.username}</p>
@@ -243,9 +265,8 @@ export default function Cadastro() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Digite seu e-mail"
-                className={`bg-gray-300 border ${
-                  errors.email ? "border-red-600" : "border-black"
-                }`}
+                className={`bg-gray-300 border ${errors.email ? "border-red-600" : "border-black"}`}
+                disabled={isLoading}
               />
               {errors.email && (
                 <p className="text-red-600 text-sm">{errors.email}</p>
@@ -260,9 +281,8 @@ export default function Cadastro() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Digite sua senha"
-                className={`bg-gray-300 border ${
-                  errors.password ? "border-red-600" : "border-black"
-                }`}
+                className={`bg-gray-300 border ${errors.password ? "border-red-600" : "border-black"}`}
+                disabled={isLoading}
               />
               {errors.password && (
                 <p className="text-red-600 text-sm">{errors.password}</p>
@@ -274,12 +294,11 @@ export default function Cadastro() {
               <Input
                 type="text"
                 name="cpf"
-                value={formData.cpf}
+                value={maskedCPF}
                 onChange={handleChange}
                 placeholder="Digite seu CPF"
-                className={`bg-gray-300 border ${
-                  errors.cpf ? "border-red-600" : "border-black"
-                }`}
+                className={`bg-gray-300 border ${errors.cpf ? "border-red-600" : "border-black"}`}
+                disabled={isLoading}
               />
               {errors.cpf && (
                 <p className="text-red-600 text-sm">{errors.cpf}</p>
@@ -288,7 +307,7 @@ export default function Cadastro() {
 
             <div>
               <Label>Tipo de usuário</Label>
-              <Select value={formData.role} onValueChange={handleRoleChange}>
+              <Select value={formData.role} onValueChange={handleRoleChange} disabled={isLoading}>
                 <SelectTrigger
                   className={`bg-gray-300 border ${
                     errors.role ? "border-red-600" : "border-black"
@@ -297,8 +316,8 @@ export default function Cadastro() {
                   <SelectValue placeholder="Selecione o tipo de usuário" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">Cliente</SelectItem>
-                  <SelectItem value="organizer">Organizador</SelectItem>
+                  <SelectItem value="Client">Cliente</SelectItem>
+                  <SelectItem value="Organizer">Organizador</SelectItem>
                 </SelectContent>
               </Select>
               {errors.role && (
@@ -310,8 +329,16 @@ export default function Cadastro() {
               type="submit"
               variant="ghostDefault"
               className="w-full py-4 px-6 text-base font-medium rounded-md"
+              disabled={isLoading}
             >
-              Cadastrar
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  Cadastrando...
+                </>
+              ) : (
+                "Cadastrar"
+              )}
             </Button>
 
             <div className="flex items-center justify-center text-sm">

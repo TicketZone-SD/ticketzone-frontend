@@ -9,14 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { User } from "@/interfaces/user";
+import { login } from "@/services/django/userService";
 
 export default function Login() {
   const { toast } = useToast();
   const router = useRouter();
-
-  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = () => {
     router.push("/cadastro");
@@ -55,8 +55,8 @@ export default function Login() {
         break;
 
       case "password":
-        if (!formData.password || formData.password.length < 6) {
-          newErrors.password = "Senha deve ter pelo menos 6 caracteres.";
+        if (!formData.password || formData.password.length < 5) {
+          newErrors.password = "Senha deve ter pelo menos 5 caracteres.";
           isValid = false;
         } else {
           newErrors.password = "";
@@ -77,41 +77,60 @@ export default function Login() {
     validate(name);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let isValid = true;
-    Object.keys(formData).forEach((key) => {
-      if (!validate(key)) {
-        isValid = false;
+    const hasErrors = Object.keys(formData).some((key) => !validate(key));
+    if (hasErrors) return;
+
+    setIsLoading(true);
+
+    try {
+      const userData = await login(formData.username, formData.password);
+
+      if (userData && userData.user && userData.access) {
+      // Criando o objeto do usuário para armazenar no state/localStorage
+        const user: User = {
+          id: userData.user.id,
+          username: userData.user.username,
+          email: userData.user.email,
+          cpf: userData.user.cpf,
+          name: userData.user.name,
+          role: userData.user.role,
+          avatar: userData.user.avatar || "https://i.pravatar.cc/150?u=lincon",
+          accessToken: userData.access,
+          refreshToken: userData.refresh,
+        };
+
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("accessToken", userData.access);
+        localStorage.setItem("refreshToken", userData.refresh);
+
+        toast({
+          title: "Sucesso!",
+          description: "Login realizado com sucesso.",
+        });
+
+        setFormData({
+          username: "",
+          password: "",
+        });
+
+        setErrors({
+          username: "",
+          password: "",
+        });
+
+        handleHome();
       }
-
-      // FAZER REQUEST PARA API DE LOGIN
-      // setUser({
-      //   name: response.username,
-      //   avatar: response.avatar | "https://i.pravatar.cc/150?u=lincon",
-      // });
-    });
-
-    if (isValid) {
-      localStorage.setItem("user", JSON.stringify(user));
-
+    } catch {
       toast({
-        title: "Sucesso!",
-        description: "Login realizado com sucesso.",
+        title: "Erro",
+        description: "Usuário ou senha incorretos.",
+        variant: "destructive",
       });
-
-      setFormData({
-        username: "",
-        password: "",
-      });
-
-      setErrors({
-        username: "",
-        password: "",
-      });
-
-      handleHome();
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -119,13 +138,22 @@ export default function Login() {
     <div className="flex items-center justify-center min-h-screen p-8 bg-slate-600">
       <Toaster />
 
+      {isLoading && (
+        <div
+          className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          aria-hidden="true"
+        >
+          <Loader2 className="w-12 h-12 animate-spin text-white" />
+        </div>
+      )}
+
       <div className="absolute top-4 left-4">
-        <Button variant="ghostDefault" size="icon" onClick={handleInitial}>
+        <Button variant="ghostDefault" size="icon" onClick={handleInitial} disabled={isLoading}>
           <ChevronLeft />
         </Button>
       </div>
 
-      <Card className="w-full max-w-md shadow-lg text-white border border-black">
+      <Card className={`w-full max-w-md shadow-lg text-white border border-black ${isLoading ? "opacity-50" : ""}`}>
         <CardHeader className="text-center bg-primary p-6 rounded-t-lg">
           <CardTitle className="text-xl font-bold flex items-center justify-center gap-x-2">
             <Image src="/images/Logo-sem-fundo.png" alt="TicketZone Logo" width={40} height={40} />
@@ -144,9 +172,8 @@ export default function Login() {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="Digite seu nome de usuário"
-                className={`bg-gray-300 border ${
-                  errors.username ? "border-red-600" : "border-black"
-                }`}
+                className={`bg-gray-300 border ${errors.username ? "border-red-600" : "border-black"}`}
+                disabled={isLoading}
               />
               {errors.username && (
                 <p className="text-red-600 text-sm">{errors.username}</p>
@@ -161,9 +188,8 @@ export default function Login() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Digite sua senha"
-                className={`bg-gray-300 border ${
-                  errors.password ? "border-red-600" : "border-black"
-                }`}
+                className={`bg-gray-300 border ${errors.password ? "border-red-600" : "border-black"}`}
+                disabled={isLoading}
               />
               {errors.password && (
                 <p className="text-red-600 text-sm">{errors.password}</p>
@@ -174,13 +200,21 @@ export default function Login() {
               type="submit"
               variant="ghostDefault"
               className="w-full py-4 px-6 text-base font-medium rounded-md"
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  Logando...
+                </>
+              ) : (
+                "Login"
+              )}
             </Button>
 
             <div className="flex items-center justify-center text-sm">
               <span className="text-gray-600">Não possui cadastro?</span>
-              <Button variant="link" className="text-sm" onClick={handleRegister}>
+              <Button variant="link" className="text-sm" onClick={handleRegister} disabled={isLoading}>
                 Cadastre-se
               </Button>
             </div>
