@@ -86,8 +86,8 @@ export default function Header() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem>Meu Perfil</DropdownMenuItem>
-                <DropdownMenuItem>Meus Pedidos</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/meu-perfil")}>Meu Perfil</DropdownMenuItem> {/* Redireciona para /meu-perfil */}
+                <DropdownMenuItem onClick={() => router.push("/meus-pedidos")}>Meus Pedidos</DropdownMenuItem> {/* Redireciona para /meus-pedidos */}
                 <DropdownMenuItem onClick={() => {
                   localStorage.removeItem("user");
                   setUser(null);
