@@ -7,14 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-// Mock: Tipos de ingresso por evento
 const mockTicketTypes = [
   { id: 1, event_id: 1, name: "Pista", description: "Acesso à pista", price: 100, capacity: 500, sold: 200 },
   { id: 2, event_id: 1, name: "VIP", description: "Área VIP com open bar", price: 250, capacity: 100, sold: 30 },
   { id: 3, event_id: 2, name: "Geral", description: "Acesso geral ao evento", price: 50, capacity: 1000, sold: 400 },
 ];
 
-// Mock: Eventos do organizador logado
 const mockEvents = [
   { id: 1, name: "Festival de Música" },
   { id: 2, name: "Tech Conference" },
@@ -34,7 +32,6 @@ export default function TicketTypesPage() {
   } | null>(null);
   const [open, setOpen] = useState(false);
 
-  // Abrir modal para edição/criação
   const handleEdit = (ticket: typeof selectedTicket) => {
       setSelectedTicket({
         id: ticket?.id ?? 0,
@@ -43,12 +40,11 @@ export default function TicketTypesPage() {
         description: ticket?.description ?? "",
         price: ticket?.price ?? 0,
         capacity: ticket?.capacity ?? 0,
-        sold: ticket?.sold ?? 0, // Garantindo que `sold` sempre tenha um valor numérico
+        sold: ticket?.sold ?? 0,
       });
       setOpen(true);
     };
 
-  // Atualizar form
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSelectedTicket({
       ...selectedTicket!,
@@ -57,25 +53,22 @@ export default function TicketTypesPage() {
     });
   };
 
-  // Salvar alterações
   const handleSave = () => {
     if (selectedTicket && selectedTicket.id !== undefined) {
-      // Atualizar ingresso existente
       setTicketTypes(ticketTypes.map((t) =>
         t.id === selectedTicket.id
-          ? { ...selectedTicket, sold: selectedTicket.sold ?? 0 } // Garantindo `sold` sempre presente
+          ? { ...selectedTicket, sold: selectedTicket.sold ?? 0 }
           : t
       ));
     } else {
-      // Criar novo ingresso
       const newTicket = {
-        id: ticketTypes.length > 0 ? Math.max(...ticketTypes.map(t => t.id)) + 1 : 1, // Garante um ID único
+        id: ticketTypes.length > 0 ? Math.max(...ticketTypes.map(t => t.id)) + 1 : 1,
         event_id: selectedTicket?.event_id ?? 0,
         name: selectedTicket?.name ?? "Novo Ingresso",
         description: selectedTicket?.description ?? "",
         price: selectedTicket?.price ?? 0,
         capacity: selectedTicket?.capacity ?? 0,
-        sold: 0, // Novo ingresso começa com 0 vendidos
+        sold: 0,
       };
 
       setTicketTypes([...ticketTypes, newTicket]);
@@ -83,7 +76,6 @@ export default function TicketTypesPage() {
     setOpen(false);
   };
 
-  // Remover ingresso
   const handleDelete = (id: number) => {
     setTicketTypes(ticketTypes.filter((t) => t.id !== id));
   };
