@@ -19,10 +19,15 @@ export default function Header() {
       setUser(JSON.parse(storedUser));
     } else {
       // User default for testing
-      // setUser({
-      //   name: "Usuário",
-      //   avatar: "https://i.pravatar.cc/150?u=lincon",
-      // })
+      setUser({
+        id: 1,
+        name: "Usuário",
+        email: "default@example.com",
+        cpf: "000.000.000-00",
+        role: "Organizer",
+        token: "default-token",
+        avatar: "https://i.pravatar.cc/150?u=lincon",
+      })
     }
   }, []);
 
@@ -33,6 +38,10 @@ export default function Header() {
   const handleRegister = () => {
     router.push("/cadastro");
   };
+
+  const handleEventsManager = () => {
+    router.push("/gerenciar-eventos");
+  }
 
   return (
     <header className="bg-primary text-white py-4 shadow-md">
@@ -54,8 +63,12 @@ export default function Header() {
           <>
             <nav className="hidden md:flex space-x-6">
               <Button variant="ghost">Eventos</Button>
-              <Button variant="ghost">Estados</Button>
-              <Button variant="ghost">Ajuda</Button>
+              {user.role === "Organizer" && (
+                <>
+                  <Button variant="ghost" onClick={handleEventsManager}>Meus Eventos</Button>
+                  <Button variant="ghost" onClick={handleEventsManager}>Categorias</Button>
+                </>
+              )}
             </nav>
 
             <DropdownMenu>
