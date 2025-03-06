@@ -32,6 +32,7 @@ export default function Cadastro() {
 
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     email: "",
     password: "",
     cpf: "",
@@ -40,6 +41,7 @@ export default function Cadastro() {
 
   const [errors, setErrors] = useState({
     name: "",
+    username: "",
     email: "",
     password: "",
     cpf: "",
@@ -158,6 +160,7 @@ export default function Cadastro() {
 
       setFormData({
         name: "",
+        username: "",
         email: "",
         password: "",
         cpf: "",
@@ -166,6 +169,7 @@ export default function Cadastro() {
 
       setErrors({
         name: "",
+        username: "",
         email: "",
         password: "",
         cpf: "",
@@ -219,15 +223,15 @@ export default function Cadastro() {
               <Input
                 type="text"
                 name="username"
-                value={formData.cpf}
+                value={formData.username}
                 onChange={handleChange}
                 placeholder="Digite seu nome de usuário"
                 className={`bg-gray-300 border ${
                   errors.cpf ? "border-red-600" : "border-black"
                 }`}
               />
-              {errors.cpf && (
-                <p className="text-red-600 text-sm">{errors.cpf}</p>
+              {errors.username && (
+                <p className="text-red-600 text-sm">{errors.username}</p>
               )}
             </div>
 
