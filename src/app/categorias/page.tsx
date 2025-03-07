@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import PrivateRoute from "@/components/auth/PrivateRoute";
 
 const mockCategories = [
   { id: 1, name: "Música", description: "Eventos relacionados a shows e apresentações musicais" },
@@ -50,60 +51,62 @@ export default function ManageCategories() {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold mb-6">Gerenciar Categorias</h1>
-        <Button onClick={() => handleEdit()} className="mb-4">Criar Categoria</Button>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Descrição</TableHead>
-            <TableHead>Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {categories.map((category) => (
-            <TableRow key={category.id}>
-              <TableCell>{category.name}</TableCell>
-              <TableCell>{category.description || "Sem descrição"}</TableCell>
-              <TableCell>
-                <Button variant="outline" size="sm" onClick={() => handleEdit(category)}>
-                  Editar
-                </Button>
-                <Button variant="destructive" size="sm" className="ml-2" onClick={() => handleDelete(category.id)}>
-                  Remover
-                </Button>
-              </TableCell>
+    <PrivateRoute>
+      <div className="container mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold mb-6">Gerenciar Categorias</h1>
+          <Button onClick={() => handleEdit()} className="mb-4">Criar Categoria</Button>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead>Ações</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {categories.map((category) => (
+              <TableRow key={category.id}>
+                <TableCell>{category.name}</TableCell>
+                <TableCell>{category.description || "Sem descrição"}</TableCell>
+                <TableCell>
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(category)}>
+                    Editar
+                  </Button>
+                  <Button variant="destructive" size="sm" className="ml-2" onClick={() => handleDelete(category.id)}>
+                    Remover
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-      {/* Modal de Criação/Edição */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedCategory?.id ? "Editar Categoria" : "Nova Categoria"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Nome</Label>
-              <Input type="text" name="name" value={selectedCategory?.name || ""} onChange={handleChange} />
+        {/* Modal de Criação/Edição */}
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{selectedCategory?.id ? "Editar Categoria" : "Nova Categoria"}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Nome</Label>
+                <Input type="text" name="name" value={selectedCategory?.name || ""} onChange={handleChange} />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Descrição</Label>
+                <Textarea name="description" value={selectedCategory?.description || ""} onChange={handleChange} />
+              </div>
+
+              <Button onClick={handleSave} className="w-full">
+                Salvar Alterações
+              </Button>
             </div>
-
-            <div className="space-y-2">
-              <Label>Descrição</Label>
-              <Textarea name="description" value={selectedCategory?.description || ""} onChange={handleChange} />
-            </div>
-
-            <Button onClick={handleSave} className="w-full">
-              Salvar Alterações
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </PrivateRoute>
   );
 }

@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import PrivateRoute from "@/components/auth/PrivateRoute";
 
 const mockTicketTypes = [
   { id: 1, event_id: 1, name: "Pista", description: "Acesso à pista", price: 100, capacity: 500, sold: 200 },
@@ -81,75 +82,77 @@ export default function TicketTypesPage() {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Gerenciar Tipos de Ingressos</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockEvents.map((event) => (
-          <Card key={event.id} className="shadow-lg">
-            <CardHeader>
-              <CardTitle>{event.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {ticketTypes
-                  .filter((ticket) => ticket.event_id === event.id)
-                  .map((ticket) => (
-                    <li key={ticket.id} className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">{ticket.name}</p>
-                        <p className="text-sm text-gray-600">{ticket.description}</p>
-                        <p className="text-sm font-bold">
-                          Vendidos: {ticket.sold}/{ticket.capacity}
-                        </p>
-                        <p className="text-sm font-bold">R$ {ticket.price.toFixed(2)}</p>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(ticket)}>
-                          Editar
-                        </Button>
-                        <Button variant="destructive" size="sm" onClick={() => handleDelete(ticket.id!)}>
-                          Remover
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
-              </ul>
-              <Button className="mt-4 w-full" onClick={() => handleEdit({ event_id: event.id })}>
-                Adicionar Ingresso
+    <PrivateRoute>
+      <div className="container mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-6">Gerenciar Tipos de Ingressos</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {mockEvents.map((event) => (
+            <Card key={event.id} className="shadow-lg">
+              <CardHeader>
+                <CardTitle>{event.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {ticketTypes
+                    .filter((ticket) => ticket.event_id === event.id)
+                    .map((ticket) => (
+                      <li key={ticket.id} className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">{ticket.name}</p>
+                          <p className="text-sm text-gray-600">{ticket.description}</p>
+                          <p className="text-sm font-bold">
+                            Vendidos: {ticket.sold}/{ticket.capacity}
+                          </p>
+                          <p className="text-sm font-bold">R$ {ticket.price.toFixed(2)}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm" onClick={() => handleEdit(ticket)}>
+                            Editar
+                          </Button>
+                          <Button variant="destructive" size="sm" onClick={() => handleDelete(ticket.id!)}>
+                            Remover
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                </ul>
+                <Button className="mt-4 w-full" onClick={() => handleEdit({ event_id: event.id })}>
+                  Adicionar Ingresso
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Modal de Edição/Criação */}
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{selectedTicket?.id ? "Editar Ingresso" : "Novo Ingresso"}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Label>Nome</Label>
+              <Input type="text" name="name" value={selectedTicket?.name || ""} onChange={handleChange} />
+
+              <Label>Descrição</Label>
+              <Textarea name="description" value={selectedTicket?.description || ""} onChange={handleChange} />
+
+              <Label>Preço</Label>
+              <Input type="number" name="price" value={selectedTicket?.price || ""} onChange={handleChange} />
+
+              <Label>Capacidade</Label>
+              <Input type="number" name="capacity" value={selectedTicket?.capacity || ""} onChange={handleChange} />
+
+              <Label>Ingressos Vendidos</Label>
+              <Input type="number" name="sold" value={selectedTicket?.sold?.toString() || "0"} onChange={handleChange} />
+
+              <Button onClick={handleSave} className="w-full">
+                Salvar Alterações
               </Button>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Modal de Edição/Criação */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedTicket?.id ? "Editar Ingresso" : "Novo Ingresso"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Label>Nome</Label>
-            <Input type="text" name="name" value={selectedTicket?.name || ""} onChange={handleChange} />
-
-            <Label>Descrição</Label>
-            <Textarea name="description" value={selectedTicket?.description || ""} onChange={handleChange} />
-
-            <Label>Preço</Label>
-            <Input type="number" name="price" value={selectedTicket?.price || ""} onChange={handleChange} />
-
-            <Label>Capacidade</Label>
-            <Input type="number" name="capacity" value={selectedTicket?.capacity || ""} onChange={handleChange} />
-
-            <Label>Ingressos Vendidos</Label>
-            <Input type="number" name="sold" value={selectedTicket?.sold?.toString() || "0"} onChange={handleChange} />
-
-            <Button onClick={handleSave} className="w-full">
-              Salvar Alterações
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </PrivateRoute>
   );
 }

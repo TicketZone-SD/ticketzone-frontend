@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { formatDate } from "@/utils/utils";
 import { useRouter } from "next/navigation";
+import PrivateRoute from "@/components/auth/PrivateRoute";
 
 const categoryMap: { [key: number]: string } = {
   1: "Música",
@@ -94,93 +95,95 @@ export default function ManageEvents() {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Meus Eventos</h1>
-        <div className="flex space-x-2">
-          <Button onClick={handleCreate}>Criar Evento</Button>
-          <Button onClick={handleTicketTypes}>Tipos de Ingresso</Button>
-        </div>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Descrição</TableHead>
-            <TableHead>Local</TableHead>
-            <TableHead>Data</TableHead>
-            <TableHead>Capacidade</TableHead>
-            <TableHead>Preço</TableHead>
-            <TableHead>Categoria</TableHead>
-            <TableHead>Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {events.map(event => (
-            <TableRow key={event.id}>
-              <TableCell>{event.name}</TableCell>
-              <TableCell>{event.description || "Sem descrição"}</TableCell>
-              <TableCell>{event.local}</TableCell>
-              <TableCell>{formatDate(event.date)}</TableCell>
-              <TableCell>{event.capacity}</TableCell>
-              <TableCell>R$ {Number(event.price).toFixed(2)}</TableCell>
-              <TableCell>{categoryMap[event.category_id] || "Outros"}</TableCell>
-              <TableCell>
-                <Button variant="outline" size="sm" onClick={() => handleEdit(event)}>
-                  Editar
-                </Button>
-                <Button variant="destructive" size="sm" className="ml-2" onClick={() => handleDelete(event.id)}>
-                  Remover
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      {/* Modal de Criação/Edição */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{isCreating ? "Criar Evento" : "Editar Evento"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Nome</Label>
-              <Input type="text" name="name" value={selectedEvent?.name || ""} onChange={handleChange} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Descrição</Label>
-              <Textarea name="description" value={selectedEvent?.description || ""} onChange={handleChange} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Local</Label>
-              <Input type="text" name="local" value={selectedEvent?.local || ""} onChange={handleChange} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Data</Label>
-              <Input type="date" name="date" value={selectedEvent?.date || ""} onChange={handleChange} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Capacidade</Label>
-              <Input type="number" name="capacity" value={selectedEvent?.capacity || 0} onChange={handleChange} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Preço</Label>
-              <Input type="number" step="0.01" name="price" value={selectedEvent?.price || 0} onChange={handleChange} />
-            </div>
-
-            <Button onClick={handleSave} className="w-full mt-4">
-              {isCreating ? "Criar Evento" : "Salvar Alterações"}
-            </Button>
+    <PrivateRoute>
+      <div className="container mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Meus Eventos</h1>
+          <div className="flex space-x-2">
+            <Button onClick={handleCreate}>Criar Evento</Button>
+            <Button onClick={handleTicketTypes}>Tipos de Ingresso</Button>
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead>Local</TableHead>
+              <TableHead>Data</TableHead>
+              <TableHead>Capacidade</TableHead>
+              <TableHead>Preço</TableHead>
+              <TableHead>Categoria</TableHead>
+              <TableHead>Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {events.map(event => (
+              <TableRow key={event.id}>
+                <TableCell>{event.name}</TableCell>
+                <TableCell>{event.description || "Sem descrição"}</TableCell>
+                <TableCell>{event.local}</TableCell>
+                <TableCell>{formatDate(event.date)}</TableCell>
+                <TableCell>{event.capacity}</TableCell>
+                <TableCell>R$ {Number(event.price).toFixed(2)}</TableCell>
+                <TableCell>{categoryMap[event.category_id] || "Outros"}</TableCell>
+                <TableCell>
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(event)}>
+                    Editar
+                  </Button>
+                  <Button variant="destructive" size="sm" className="ml-2" onClick={() => handleDelete(event.id)}>
+                    Remover
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        {/* Modal de Criação/Edição */}
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{isCreating ? "Criar Evento" : "Editar Evento"}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Nome</Label>
+                <Input type="text" name="name" value={selectedEvent?.name || ""} onChange={handleChange} />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Descrição</Label>
+                <Textarea name="description" value={selectedEvent?.description || ""} onChange={handleChange} />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Local</Label>
+                <Input type="text" name="local" value={selectedEvent?.local || ""} onChange={handleChange} />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Data</Label>
+                <Input type="date" name="date" value={selectedEvent?.date || ""} onChange={handleChange} />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Capacidade</Label>
+                <Input type="number" name="capacity" value={selectedEvent?.capacity || 0} onChange={handleChange} />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Preço</Label>
+                <Input type="number" step="0.01" name="price" value={selectedEvent?.price || 0} onChange={handleChange} />
+              </div>
+
+              <Button onClick={handleSave} className="w-full mt-4">
+                {isCreating ? "Criar Evento" : "Salvar Alterações"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </PrivateRoute>
   );
 }

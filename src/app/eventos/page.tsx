@@ -10,6 +10,7 @@ import { formatDate } from "@/utils/utils";
 import { CartItem, Event } from "@/interfaces/event";
 import { getEvents } from "@/services/nestjs/eventService";
 import EventDetailsModal from "@/components/ui/EventDetailsModal";
+import PrivateRoute from "@/components/auth/PrivateRoute";
 
 export default function EventsPage() {
   const { toast } = useToast();
@@ -106,38 +107,40 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">Eventos Disponíveis</h1>
+    <PrivateRoute>
+      <div className="container mx-auto p-6">
+        <h1 className="text-2xl font-bold text-center mb-6">Eventos Disponíveis</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map((event) => (
-          <Card key={event.id} className="shadow-lg hover:shadow-xl transition">
-            <CardHeader>
-              <CardTitle>{event.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">{event.description}</p>
-              <p className="text-sm text-gray-500 mt-2">
-                📍 {event.local} | 📅 {formatDate(event.date)}
-              </p>
-              <p className="text-lg font-bold mt-2">R$ {event.price.toFixed(2)}</p>
-              <Button className="mt-4 w-full" onClick={() => handleEventDetails(event)}>
-                Ver Detalhes
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {events.map((event) => (
+            <Card key={event.id} className="shadow-lg hover:shadow-xl transition">
+              <CardHeader>
+                <CardTitle>{event.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">{event.description}</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  📍 {event.local} | 📅 {formatDate(event.date)}
+                </p>
+                <p className="text-lg font-bold mt-2">R$ {event.price.toFixed(2)}</p>
+                <Button className="mt-4 w-full" onClick={() => handleEventDetails(event)}>
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Modal de Detalhes do Evento */}
+        <EventDetailsModal
+          open={open}
+          setOpen={setOpen}
+          selectedEvent={selectedEvent}
+          handleAddToCart={handleAddToCart}
+          quantity={quantity}
+          setQuantity={setQuantity}
+        />
       </div>
-
-      {/* Modal de Detalhes do Evento */}
-      <EventDetailsModal
-        open={open}
-        setOpen={setOpen}
-        selectedEvent={selectedEvent}
-        handleAddToCart={handleAddToCart}
-        quantity={quantity}
-        setQuantity={setQuantity}
-      />
-    </div>
+    </PrivateRoute>
   );
 }
