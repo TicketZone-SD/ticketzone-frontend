@@ -9,8 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from "lucide-react";
 import { formatDate } from "@/utils/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { EventDetailsModalProps } from "@/interfaces/event";
+import { User } from "@/interfaces/user";
 
 export default function EventDetailsModal({
   open,
@@ -20,6 +21,15 @@ export default function EventDetailsModal({
   quantity,
   setQuantity,
 }: EventDetailsModalProps) {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // Get user logged from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   // Sempre resetar a quantidade quando o modal for aberto
   useEffect(() => {
@@ -42,27 +52,31 @@ export default function EventDetailsModal({
             <p><strong>Preço:</strong> R$ {selectedEvent.price.toFixed(2)}</p>
 
             {/* Seletor de Quantidade */}
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setQuantity((prev: number) => Math.max(1, prev - 1))}
-              >
-                <Minus className="w-4 h-4" />
-              </Button>
-              <span className="text-lg font-bold">{quantity}</span>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setQuantity((prev: number) => prev + 1)}
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
+            {user && (
+              <>
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity((prev: number) => Math.max(1, prev - 1))}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <span className="text-lg font-bold">{quantity}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity((prev: number) => prev + 1)}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
 
-            <Button onClick={() => handleAddToCart(quantity)} className="w-full">
-              Adicionar ao Carrinho
-            </Button>
+                <Button onClick={() => handleAddToCart(quantity)} className="w-full">
+                  Adicionar ao Carrinho
+                </Button>
+              </>
+              )}
           </div>
         )}
       </DialogContent>
