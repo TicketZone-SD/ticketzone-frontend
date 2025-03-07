@@ -31,6 +31,28 @@ export const getEventById = async (id: number) => {
   }
 }
 
+export const getTicketSoldByEvent = async (eventId: number) => {
+  try {
+    const response = await apiNest.get(`/events/${eventId}/tickets-sold-detailed`);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Erro ao buscar ingressos vendidos do evento", error);
+    throw error;
+  }
+}
+
+export const getSoldByEvent = async (eventId: number) => {
+  try {
+    const response = await apiNest.get(`/events/${eventId}/sold-tickets`);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Erro ao buscar ingressos vendidos do evento", error);
+    throw error;
+  }
+}
+
 export const getEventByOrganizer = async (organizerId: number) => {
   try {
     const response = await apiNest.get(`/events/organizer/${organizerId}`);
