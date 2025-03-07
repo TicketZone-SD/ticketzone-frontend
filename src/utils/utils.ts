@@ -19,3 +19,8 @@ export function formatCPF(cpf: string): string {
     .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
     .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
 };
+
+export function formatPrice(value: string | number): string {
+  const numericValue = typeof value === "string" ? parseFloat(value.replace(/\D/g, "")) / 100 : value;
+  return numericValue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
