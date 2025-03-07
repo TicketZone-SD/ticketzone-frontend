@@ -105,6 +105,7 @@ export default function Login() {
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("accessToken", userData.access);
         localStorage.setItem("refreshToken", userData.refresh);
+        localStorage.removeItem("cart");
 
         toast({
           title: "Sucesso!",

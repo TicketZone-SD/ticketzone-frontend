@@ -1,11 +1,13 @@
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString + "T00:00:00");
+  const date = new Date(dateString);
   if (isNaN(date.getTime())) return "Data inválida";
 
   return date.toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 

@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -36,12 +35,24 @@ export default function Header() {
     router.push("/cadastro");
   };
 
+  const handleEvents = () => {
+    router.push("/eventos");
+  }
+
   const handleEventsManager = () => {
     router.push("/gerenciar-eventos");
   }
 
   const handleCategoriesManager = () => {
     router.push("/categorias");
+  }
+
+  const handleMyProfile = () => {
+    router.push("/meu-perfil");
+  }
+
+  const handleMyOrders = () => {
+    router.push("/meus-pedidos");
   }
 
   return (
@@ -54,18 +65,10 @@ export default function Header() {
           </a>
         </h1>
 
-        <div className="relative">
-          <Input
-            type="text"
-            placeholder="Pesquisar eventos..."
-            className="w-[250px] md:w-[400px] pl-10 rounded-lg"
-          />
-        </div>
-
         {user ? (
           <>
             <nav className="hidden md:flex space-x-6">
-              <Button variant="ghost">Eventos</Button>
+              <Button variant="ghost" onClick={handleEvents}>Eventos</Button>
               {user.role === "Organizer" && (
                 <>
                   <Button variant="ghost" onClick={handleEventsManager}>Meus Eventos</Button>
@@ -85,8 +88,8 @@ export default function Header() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => router.push("/meu-perfil")}>Meu Perfil</DropdownMenuItem> {/* Redireciona para /meu-perfil */}
-                <DropdownMenuItem onClick={() => router.push("/meus-pedidos")}>Meus Pedidos</DropdownMenuItem> {/* Redireciona para /meus-pedidos */}
+                <DropdownMenuItem onClick={handleMyProfile}>Meu Perfil</DropdownMenuItem> {/* Redireciona para /meu-perfil */}
+                <DropdownMenuItem onClick={handleMyOrders}>Meus Pedidos</DropdownMenuItem> {/* Redireciona para /meus-pedidos */}
                 <DropdownMenuItem onClick={() => {
                   localStorage.removeItem("user");
                   setUser(null);
