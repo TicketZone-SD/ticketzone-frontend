@@ -196,7 +196,7 @@ export default function Cadastro() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-8 bg-slate-600">
+    <div className="flex items-center justify-center min-h-screen p-8 bg-slate-800">
       <Toaster />
 
       {isLoading && (

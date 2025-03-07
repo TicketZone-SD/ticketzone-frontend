@@ -18,6 +18,7 @@ import {
 } from "@/services/nestjs/ticketTypeService";
 import { getEvents, getSoldByEvent, getTicketSoldByEvent } from "@/services/nestjs/eventService";
 import { formatPrice } from "@/utils/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TicketTypesPage() {
   const { toast } = useToast();
@@ -149,17 +150,18 @@ export default function TicketTypesPage() {
     }
   };
 
-  console.log("TicketTypes", ticketTypes);
-  console.log("TicketSOld", ticketsSold);
-
   return (
     <PrivateRoute>
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold mb-6">Gerenciar Tipos de Ingressos</h1>
 
         {loading ? (
-          <p className="text-center">Carregando...</p>
-        ) : error ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Skeleton key={index} className="h-32 w-full rounded-lg" />
+            ))}
+          </div>
+        ): error ? (
           <p className="text-red-600 text-center">Erro ao carregar os ingressos.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

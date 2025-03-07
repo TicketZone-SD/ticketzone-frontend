@@ -12,17 +12,19 @@ import { formatDate, formatPrice } from "@/utils/utils";
 import { useRouter } from "next/navigation";
 import PrivateRoute from "@/components/auth/PrivateRoute";
 import { Event } from "@/interfaces/event";
-import { getEventByOrganizer, createEvent, updateEvent, deleteEvent } from "@/services/nestjs/eventService";
+import { getEventByOrganizer, createEvent, updateEvent, deleteEvent, getSoldByEvent } from "@/services/nestjs/eventService";
 import { getCategories } from "@/services/nestjs/categoryService";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Category } from "@/interfaces/category";
+import { TicketTypeSoldTotal } from "@/interfaces/ticketType";
 
 export default function ManageEvents() {
   const { toast } = useToast();
   const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [ticketsTotal, setTicketsTotal] = useState<{ [key: number]: TicketTypeSoldTotal }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -42,6 +44,21 @@ export default function ManageEvents() {
         ]);
         setEvents(eventsData);
         setCategories(categoriesData);
+
+        // Buscar ingressos vendidos para cada evento
+        const ticketsTotalData: { [key: number]: TicketTypeSoldTotal } = {};
+        await Promise.all(
+          eventsData.map(async (event: Event) => {
+            try {
+              const soldTotal = await getSoldByEvent(event.id);
+              ticketsTotalData[event.id] = soldTotal;
+            } catch (err) {
+              console.error(`Erro ao buscar ingressos vendidos para o evento ${event.id}`, err);
+            }
+          })
+        );
+
+        setTicketsTotal(ticketsTotalData);
       } catch {
         setError(true);
         toast({
@@ -71,7 +88,11 @@ export default function ManageEvents() {
       date: "",
       capacity: 0,
       price: 0,
-      category_id: categories.length > 0 ? categories[0].id : 1,
+      category: {
+        id: categories.length > 0 ? categories[0].id : 1,
+        name: "",
+        description: "",
+      },
       organizer: user.id,
     });
     setOpen(true);
@@ -143,9 +164,6 @@ export default function ManageEvents() {
     }
   };
 
-  console.log("events", events);
-  console.log("categories", categories);
-
   return (
     <PrivateRoute>
       <div className="container mx-auto p-6">
@@ -174,7 +192,7 @@ export default function ManageEvents() {
                 <TableHead>Local</TableHead>
                 <TableHead>Data</TableHead>
                 <TableHead>Capacidade</TableHead>
-                <TableHead>Preço</TableHead>
+                <TableHead>Ingressos Vendidos</TableHead>
                 <TableHead>Categoria</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -187,10 +205,8 @@ export default function ManageEvents() {
                   <TableCell>{event.local}</TableCell>
                   <TableCell>{formatDate(event.date)}</TableCell>
                   <TableCell>{event.capacity}</TableCell>
-                  <TableCell>R$ {Number(event.price).toFixed(2)}</TableCell>
-                  <TableCell>
-                    {categories.find((cat) => cat.id === event.category_id)?.name || "Outros"}
-                  </TableCell>
+                  <TableCell>{ticketsTotal[event.id]?.soldTickets || 0}</TableCell>
+                  <TableCell>{event.category?.name || "Outros"}</TableCell>
                   <TableCell>
                     <Button variant="outline" size="sm" onClick={() => handleEdit(event)}>
                       Editar
@@ -244,7 +260,7 @@ export default function ManageEvents() {
 
               <div className="space-y-2">
                 <Label>Categoria</Label>
-                <Select value={selectedEvent?.category_id ? String(selectedEvent.category_id) : ""} onValueChange={handleCategoryChange}>
+                <Select value={selectedEvent?.category?.id ? String(selectedEvent.category?.id) : ""} onValueChange={handleCategoryChange}>
                   <SelectTrigger><SelectValue placeholder="Selecione uma categoria" /></SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (

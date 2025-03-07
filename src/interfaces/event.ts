@@ -6,7 +6,11 @@ export interface Event {
   date: string;
   capacity: number;
   price: number;
-  category_id?: number;
+  category: {
+    id: number,
+    name: string,
+    description?: string,
+  };
   organizer: number;
 }
 
