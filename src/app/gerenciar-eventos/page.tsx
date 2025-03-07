@@ -13,20 +13,16 @@ import { useRouter } from "next/navigation";
 import PrivateRoute from "@/components/auth/PrivateRoute";
 import { Event } from "@/interfaces/event";
 import { getEventByOrganizer, createEvent, updateEvent, deleteEvent } from "@/services/nestjs/eventService";
+import { getCategories } from "@/services/nestjs/categoryService";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const categoryMap: { [key: number]: string } = {
-  1: "Música",
-  2: "Tecnologia",
-  3: "Teatro",
-  4: "Esportes",
-};
+import { Category } from "@/interfaces/category";
 
 export default function ManageEvents() {
   const { toast } = useToast();
   const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -35,18 +31,22 @@ export default function ManageEvents() {
   const user = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") || "{}") : {};
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError(false);
 
       try {
-        const data = await getEventByOrganizer(user.id);
-        setEvents(data);
+        const [eventsData, categoriesData] = await Promise.all([
+          getEventByOrganizer(user.id),
+          getCategories(),
+        ]);
+        setEvents(eventsData);
+        setCategories(categoriesData);
       } catch {
         setError(true);
         toast({
           title: "Erro",
-          description: "Não foi possível carregar os eventos.",
+          description: "Não foi possível carregar os eventos ou categorias.",
           variant: "destructive",
         });
       } finally {
@@ -54,7 +54,7 @@ export default function ManageEvents() {
       }
     };
 
-    if (user.id) fetchEvents();
+    if (user.id) fetchData();
   }, [user.id, toast]);
 
   const handleTicketTypes = () => {
@@ -71,7 +71,7 @@ export default function ManageEvents() {
       date: "",
       capacity: 0,
       price: 0,
-      category_id: 1,
+      category_id: categories.length > 0 ? categories[0].id : 1,
       organizer: user.id,
     });
     setOpen(true);
@@ -105,7 +105,6 @@ export default function ManageEvents() {
       return { ...prev, [name]: updatedValue };
     });
   };
-
 
   const handleCategoryChange = (value: string) => {
     setSelectedEvent((prev) => prev && { ...prev, category_id: Number(value) });
@@ -143,6 +142,9 @@ export default function ManageEvents() {
       toast({ title: "Erro", description: "Não foi possível remover o evento.", variant: "destructive" });
     }
   };
+
+  console.log("events", events);
+  console.log("categories", categories);
 
   return (
     <PrivateRoute>
@@ -186,7 +188,9 @@ export default function ManageEvents() {
                   <TableCell>{formatDate(event.date)}</TableCell>
                   <TableCell>{event.capacity}</TableCell>
                   <TableCell>R$ {Number(event.price).toFixed(2)}</TableCell>
-                  <TableCell>{categoryMap[event.category_id ?? 0] || "Outros"}</TableCell>
+                  <TableCell>
+                    {categories.find((cat) => cat.id === event.category_id)?.name || "Outros"}
+                  </TableCell>
                   <TableCell>
                     <Button variant="outline" size="sm" onClick={() => handleEdit(event)}>
                       Editar
@@ -239,15 +243,15 @@ export default function ManageEvents() {
               </div>
 
               <div className="space-y-2">
-              <Label>Categoria</Label>
-              <Select value={String(selectedEvent?.category_id)} onValueChange={handleCategoryChange}>
-                <SelectTrigger><SelectValue placeholder="Selecione uma categoria" /></SelectTrigger>
-                <SelectContent>
-                  {Object.entries(categoryMap).map(([id, name]) => (
-                    <SelectItem key={id} value={id}>{name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <Label>Categoria</Label>
+                <Select value={selectedEvent?.category_id ? String(selectedEvent.category_id) : ""} onValueChange={handleCategoryChange}>
+                  <SelectTrigger><SelectValue placeholder="Selecione uma categoria" /></SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={String(category.id)}>{category.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <Button onClick={handleSave} className="w-full mt-4">
