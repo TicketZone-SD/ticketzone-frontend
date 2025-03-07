@@ -50,7 +50,7 @@ export const getUserById = async (token: string , id: number) => {
 
 export const updateUser = async (token: string, updateData: User) => {
   try {
-    const response = await apiDjango.put(`/users/me/`, updateData, {
+    const response = await apiDjango.put(`/users/update/me/`, updateData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -64,7 +64,7 @@ export const updateUser = async (token: string, updateData: User) => {
 
 export const deleteUser = async (token: string) => {
   try {
-    await apiDjango.delete(`/users/me/`, {
+    await apiDjango.delete(`/users/delete/me/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
