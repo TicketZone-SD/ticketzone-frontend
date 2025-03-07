@@ -1,3 +1,5 @@
+import { CartItem } from "./order";
+
 export interface Event {
   id: number;
   name: string;
@@ -18,11 +20,5 @@ export interface EventDetailsModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   selectedEvent: Event | null;
-  handleAddToCart: (quantity: number) => void;
-  quantity: number;
-  setQuantity: (quantity: number) => void;
-}
-
-export interface CartItem extends Event {
-  quantity: number;
+  handleAddToCart: (items: CartItem[]) => void;
 }

@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { formatDate } from "@/utils/utils";
-import { CartItem, Event } from "@/interfaces/event";
+import { Event } from "@/interfaces/event";
 import { getEvents } from "@/services/nestjs/eventService";
 import EventDetailsModal from "@/components/ui/EventDetailsModal";
 import PrivateRoute from "@/components/auth/PrivateRoute";
+import { CartItem } from "@/interfaces/order";
 
 export default function EventsPage() {
   const { toast } = useToast();
@@ -19,7 +20,6 @@ export default function EventsPage() {
   const [error, setError] = useState<boolean | string>(false);
   const [open, setOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [quantity, setQuantity] = useState(1);
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
@@ -58,28 +58,38 @@ export default function EventsPage() {
 
   const handleEventDetails = (event: Event) => {
     setSelectedEvent(event);
-    setQuantity(1);
     setOpen(true);
   };
 
-  const handleAddToCart = (quantity: number) => {
-    if (!selectedEvent) return;
-
-    const newItem = { ...selectedEvent, quantity };
+  const handleAddToCart = (itemsToAdd: CartItem[]) => {
+    if (!itemsToAdd.length) return;
 
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === newItem.id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === newItem.id ? { ...item, quantity: item.quantity + newItem.quantity } : item
+      const updatedCart = [...prevCart];
+
+      itemsToAdd.forEach((newItem) => {
+        const existingItemIndex = updatedCart.findIndex(
+          (item) =>
+            item.event_id === newItem.event_id &&
+            item.ticket_type_id === newItem.ticket_type_id
         );
-      }
-      return [...prevCart, newItem];
+
+        if (existingItemIndex !== -1) {
+          // Se o ingresso já existe no carrinho, soma a quantidade
+          updatedCart[existingItemIndex].quantity += newItem.quantity;
+          updatedCart[existingItemIndex].total_price += newItem.total_price;
+        } else {
+          // Se não existe, adiciona
+          updatedCart.push(newItem);
+        }
+      });
+
+      return updatedCart;
     });
 
     toast({
       title: "Adicionado ao carrinho!",
-      description: `Você adicionou ${quantity} ingresso(s) para "${selectedEvent.name}".`,
+      description: `Ingressos adicionados com sucesso.`,
     });
 
     setOpen(false);
@@ -137,8 +147,6 @@ export default function EventsPage() {
           setOpen={setOpen}
           selectedEvent={selectedEvent}
           handleAddToCart={handleAddToCart}
-          quantity={quantity}
-          setQuantity={setQuantity}
         />
       </div>
     </PrivateRoute>

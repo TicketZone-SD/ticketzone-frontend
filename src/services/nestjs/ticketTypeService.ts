@@ -34,6 +34,17 @@ export const getTicketTypeById = async (id: number) => {
   }
 }
 
+export const getTicketTypesByEvent = async (eventId: number) => {
+  try {
+    const response = await apiNest.get(`/types/event/${eventId}`);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Erro ao buscar tipos de ingresso por evento", error);
+    throw error;
+  }
+}
+
 export const updateTicketType = async (updateData: TicketType) => {
   try {
     const response = await apiNest.patch(`/types/${updateData.id}`, updateData);

@@ -19,3 +19,7 @@ export interface TicketTypeSoldTotal {
   eventId: number,
   soldTickets: number
 }
+
+export interface TicketQuantities {
+  [key: number]: number;
+}
